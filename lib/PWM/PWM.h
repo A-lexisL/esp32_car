@@ -1,10 +1,18 @@
 #ifndef DEFINED_PWM_H
 #define DEFINED_PWM_H
 #include "driver/ledc.h"
+
 //stepper
+#define STEPPER_PWM_TIMER LEDC_TIMER_0
+#define STEPPER_PWM_FREQUENCY 400 //<125000
+#define STEPPER_PWM_RESOLOTION LEDC_TIMER_10_BIT //duty could be 0-1023
 #define STEPPER_PWM_CHANNEL LEDC_CHANNEL_0
 #define STEPPER_PWM_PIN GPIO_NUM_2
+
 //servo
+#define SERVO_PWM_TIMER LEDC_TIMER_1
+#define SERVO_PWM_FREQUENCY 50 //period 20ms
+#define SERVO_PWM_RESOLUTION LEDC_TIMER_14_BIT //the duty could be 0-16383
 #define SERVO1_PWM_CHANNEL LEDC_CHANNEL_1
 #define SERVO2_PWM_CHANNEL LEDC_CHANNEL_2
 #define SERVO3_PWM_CHANNEL LEDC_CHANNEL_3
@@ -13,6 +21,9 @@
 #define SERVO3_PWM_PIN GPIO_NUM_5
 
 //motor
+#define MOTOR_PWM_TIMER LEDC_TIMER_2
+#define MOTOR_PWM_FREQUENCY 6250
+#define MOTOR_PWM_RESOLUTION LEDC_TIMER_7_BIT //the duty could be 0-127
 #define MOTOR1_PWM_CHANNEL LEDC_CHANNEL_4
 #define MOTOR2_PWM_CHANNEL LEDC_CHANNEL_5
 #define MOTOR3_PWM_CHANNEL LEDC_CHANNEL_6
@@ -21,4 +32,8 @@
 #define MOTOR2_PWM_PIN GPIO_NUM_16
 #define MOTOR3_PWM_PIN GPIO_NUM_9
 #define MOTOR4_PWM_PIN GPIO_NUM_12
+
+void Defined_PWM_Init(void);
+void Defined_PWM_Set_Duty(ledc_mode_t Input_Speed_Mode,ledc_channel_t Input_Channel,uint32_t Input_Duty);
+uint32_t Defined_PWM_Get_Duty(ledc_mode_t Input_speed_mode, ledc_channel_t Input_channel);
 #endif
