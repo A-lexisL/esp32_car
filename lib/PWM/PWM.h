@@ -1,6 +1,6 @@
 #ifndef DEFINED_PWM_H
 #define DEFINED_PWM_H
-
+#include "driver/ledc.h"
 //stepper
 #define STEPPER_PWM_TIMER LEDC_TIMER_0
 #define STEPPER_PWM_FREQUENCY 400 //<125000
@@ -31,6 +31,6 @@
 #define MOTOR2_PWM_PIN GPIO_NUM_16
 #define MOTOR3_PWM_PIN GPIO_NUM_9
 #define MOTOR4_PWM_PIN GPIO_NUM_12
-
+void Defined_PWM_Init(void);
 
 #endif
