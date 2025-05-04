@@ -1,6 +1,5 @@
 #ifndef DEFINED_PWM_H
 #define DEFINED_PWM_H
-#include "driver/ledc.h"
 
 //stepper
 #define STEPPER_PWM_TIMER LEDC_TIMER_0
@@ -33,7 +32,5 @@
 #define MOTOR3_PWM_PIN GPIO_NUM_9
 #define MOTOR4_PWM_PIN GPIO_NUM_12
 
-void Defined_PWM_Init(void);
-void Defined_PWM_Set_Duty(ledc_mode_t Input_Speed_Mode,ledc_channel_t Input_Channel,uint32_t Input_Duty);
-uint32_t Defined_PWM_Get_Duty(ledc_mode_t Input_speed_mode, ledc_channel_t Input_channel);
+
 #endif
