@@ -14,7 +14,7 @@ void Servo_SetStatus(Servo_Status input){
 
 void Servo_SetTarget(uint16_t Servo1Input,uint16_t Servo2Input){
 //set input ==0 if you want to remain the previous one
-//only control 1\2
+//the controller could operate servo3 under both status, so this function will not include servo3
 	if(status==SERVO_Target_Angle){
 		if(Servo1Input!=0&&Servo1Input>=SERVO1_MINSTEP&&Servo1Input<=SERVO1_MAXSTEP){
 			Servo1_compare=Servo1Input;
@@ -25,14 +25,16 @@ void Servo_SetTarget(uint16_t Servo1Input,uint16_t Servo2Input){
 	}
 }
 
-void Servo_Operate(Servo_Dir servo1dir,Servo_Dir servo2dir,Servo_Dir servo3dir){
-	if(status==SERVO_Continue_Control){//only in continue control mode can the controller operate 1 and 2
+void Servo_Operate(Servo_Dir servo1dir,Servo_Dir servo2dir,Servo_Dir servo3dir,
+    uint32_t servo1speed,uint32_t servo2speed,uint32_t servo3speed){
+	//in this project servo3 doesn't have speed control, but for compatibility it's included
+	if(status==SERVO_Continue_Control){//only in continue control mode can the controller operate servo1/2
 		if(servo1dir==SERVO_CLKWISE){
-			Servo1_compare+=SERVO1_ONESTEP;
+			Servo1_compare+=servo1speed;
 			if(Servo1_compare>SERVO1_MAXSTEP)
 				Servo1_compare=SERVO1_MAXSTEP;	
 		}else if (servo1dir==SERVO_COUNTERCLKWISE){
-			Servo1_compare-=SERVO1_ONESTEP;
+			Servo1_compare-=servo1speed;
 			if(Servo1_compare<SERVO1_MINSTEP)
 				Servo1_compare=SERVO1_MINSTEP;
 		}else if(servo1dir==SERVO_STOP){
@@ -40,38 +42,38 @@ void Servo_Operate(Servo_Dir servo1dir,Servo_Dir servo2dir,Servo_Dir servo3dir){
 		ledcWrite(SERVO1_PWM_CHANNEL,Servo1_compare);
 
 		if(servo2dir==SERVO_CLKWISE){
-			Servo2_compare+=SERVO2_ONESTEP;
+			Servo2_compare+=servo2speed;
 			if(Servo2_compare>SERVO2_MAXSTEP)
             Servo2_compare=SERVO2_MAXSTEP;			
 		}else if (servo2dir==SERVO_COUNTERCLKWISE){
-			Servo2_compare-=SERVO2_ONESTEP;
+			Servo2_compare-=servo2speed;
 			if(Servo2_compare<SERVO2_MINSTEP)
             Servo2_compare=SERVO2_MINSTEP;
 		}else if(servo2dir==SERVO_STOP){
 		}
 		ledcWrite(SERVO2_PWM_CHANNEL,Servo2_compare);
-
-	}else if(status==SERVO_Target_Angle){
+	}else if(status==SERVO_Target_Angle){//servo1/2 is determined by Servo_SetTarget
 		if(Servo1_compare>=SERVO1_MINSTEP&&Servo1_compare<=SERVO1_MAXSTEP)//for security
 			ledcWrite(SERVO1_PWM_CHANNEL,Servo1_compare);
 		if(Servo2_compare>=SERVO2_MINSTEP&&Servo2_compare<=SERVO2_MAXSTEP)
 			ledcWrite(SERVO2_PWM_CHANNEL,Servo2_compare);
 	}
 	
-	if(servo3dir==SERVO_CLKWISE){
-		Servo3_compare+=SERVO3_ONESTEP;
+	if(servo3dir==SERVO_CLKWISE){//servo3 is always controlled by the controller
+		Servo3_compare+=servo3speed;
 		if(Servo3_compare>SERVO3_MAXSTEP)
-        Servo3_compare=SERVO3_MAXSTEP;
+		Servo3_compare=SERVO3_MAXSTEP;
 		
 	}else if (servo3dir==SERVO_COUNTERCLKWISE){
-		Servo3_compare-=SERVO3_ONESTEP;
+		Servo3_compare-=servo3speed;
 		if(Servo3_compare<SERVO3_MINSTEP)
-        Servo3_compare=SERVO3_MINSTEP;
+		Servo3_compare=SERVO3_MINSTEP;
 	}else if(servo3dir==SERVO_STOP){
 	}
 	ledcWrite(SERVO3_PWM_CHANNEL,Servo3_compare);
+	
 }
 
 uint16_t Servo_ReturnCompare(ledc_channel_t chan){
-	ledcRead(chan);
+	return ledcRead(chan);
 }

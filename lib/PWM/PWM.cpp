@@ -1,6 +1,10 @@
 #include "PWM.h"
 #include "Arduino.h"
 #include "driver/ledc.h"
+#include "soc/ledc_struct.h"
+#include "soc/ledc_reg.h"
+void IRAM_ATTR ledc_isr_handler(void* arg);//the definition is in stepper.cpp
+
 void Defined_PWM_Init(void){
     //stepper
     ledc_timer_config_t ledc_stepper_timer = {
@@ -22,6 +26,11 @@ void Defined_PWM_Init(void){
         .hpoint         = 0
     };
     ledc_channel_config(&ledc_stepper_channel);
+
+    // have to count every period
+    esp_intr_alloc(ETS_LEDC_INTR_SOURCE, 0, ledc_isr_handler, NULL, NULL);
+    LEDC.int_ena.val |= 1<<0;//not sure
+
 
     //servo
     ledc_timer_config_t ledc_servo_timer = {

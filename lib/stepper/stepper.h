@@ -15,5 +15,4 @@ enum Stepper_Status{Stepper_Continued_Control,Stepper_Target_Location};
 void Stepper_SetMode(Stepper_Status inputstatus);
 void Stepper_SetTargetLocation(int64_t intputlocation);
 void Stepper_ChangeDir(Stepper_Dir);
-void Stepper_Operate(void);
 #endif

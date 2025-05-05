@@ -1,14 +1,13 @@
 #include <Arduino.h>
+#include "bleretro32/log_macros.h"
 #include "stepper.h"
-
+#include "soc/ledc_struct.h"
 static Stepper_Status status=Stepper_Continued_Control;
 static int64_t MinLocation=-99999;
 static int64_t MaxLocation=99999;
 static int64_t location=0;//
 static int64_t targetlocation=0;
 static Stepper_Dir dir=Stepper_Stop;
-
-
 void Stepper_SetMaxLocation(int64_t input){MaxLocation=input;}
 void Stepper_SetMinLocation(int64_t input){MinLocation=input;}
 
@@ -43,8 +42,8 @@ Stepper_Dir Stepper_Returndir(void){
 }
 	
 	
-	
-void Stepper_Operate(void){
+void IRAM_ATTR ledc_isr_handler(void* arg){
+    LEDC.int_clr.val|=1<<0;//clear
     if(status==Stepper_Target_Location){
         if(targetlocation>location)
             dir=Stepper_Up;

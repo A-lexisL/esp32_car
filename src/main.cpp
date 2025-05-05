@@ -4,7 +4,7 @@
 #include <bleretro32/bleretro32.h>
 #include <bleretro32/xbox.h>
 
-#include "PWM.h"
+#include "operate.h"
 
 pad_definition_t pad_list[] = {
     {"Xbox Wireless Controller"},
@@ -13,12 +13,14 @@ pad_definition_t pad_list[] = {
 #define LOOP_DELAY 5
 
 void Defined_Init(void){
+    Operate_Init();
     
 }
 
 void setup()
 {   
     Defined_Init();
+    SetControllerSerialReportStatus(ControllerDataSerialReportDisable);
     Serial.begin(115200);
     Serial.printf("Starting liming-vehicle\n");
 
@@ -28,7 +30,19 @@ void setup()
 }
 
 void loop()
-{
+{   
     auto cnn_status = BLERetro32_Loop();
-    delay(LOOP_DELAY);
+    if(ReturnControlMode()!=OperateMode){
+		Calibrate();
+		if(cnn_status==CnnStatus::Connected){
+            OperateReport();
+        }
+	}
+	
+	
+	else if(ReturnControlMode()==OperateMode){
+		InterpretController();
+		Operate();
+        OperateReport();
+	}
 }
