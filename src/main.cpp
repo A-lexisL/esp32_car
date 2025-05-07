@@ -5,7 +5,7 @@
 #include <bleretro32/xbox.h>
 
 #include "operate.h"
-
+#include "OLED.h"
 pad_definition_t pad_list[] = {
     {"Xbox Wireless Controller"},
 };
@@ -14,12 +14,15 @@ pad_definition_t pad_list[] = {
 
 void Defined_Init(void){
     Operate_Init();
+    OLED_Init();
     
 }
 
 void setup()
 {   
     Defined_Init();
+
+
     SetControllerSerialReportStatus(ControllerDataSerialReportDisable);
     Serial.begin(115200);
     Serial.printf("Starting liming-vehicle\n");
@@ -45,4 +48,5 @@ void loop()
 		Operate();
         OperateReport();
 	}
+    
 }

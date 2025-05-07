@@ -19,9 +19,9 @@ enum ControlMode{
 	CalibrateBasketLocationMode,
 	OperateMode
 };
-enum WristHorizon{
-    WristHorizonEnable,
-    WristHorizonDisable
+enum TranslationPID{
+    TranslationPIDEnable,
+    TranslationPIDDisable
 };
 
 #define JOYCON_DEADZONE 5000
@@ -32,12 +32,12 @@ inline uint16_t TrgToMotorSpeed(uint32_t trg){return (trg+1)/8-1;}
 ControlMode ReturnControlMode(void);
 uint8_t ReturnConfirmCount(void);
 VehicleHead ReturnFacingStatus(void);
-WristHorizon ReturnWristStatus(void);
+TranslationPID ReturnPIDStatus(void);
 uint8_t ReturnTargetArmLocation(void);
 void Operate_Init(void);
 void Calibrate(void);
 void InterpretController(void);
-//the status button(preset,deletepreset,wristhorizontal,confirm,changefacing) are not included
+//the status button(preset,deletepreset,TranslationPID,confirm,changefacing) are not included
 void Operate(void);
 void OperateReport(void);
 #endif

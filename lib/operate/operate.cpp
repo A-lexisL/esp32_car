@@ -1,4 +1,5 @@
 #include "operate.h"
+#include "OLED.h"
 static enum ControlMode mode=CalibrateMaxLocationMode;
 static uint8_t confirmcount=0;
 
@@ -7,7 +8,7 @@ static int64_t STEPPER1_PICKLOCATION=0;
 
 static enum Presetlocation targetarmlocation=Preset_None;
 static VehicleHead Facingstatus=ARMHEAD;
-static WristHorizon WristStatus=WristHorizonDisable;
+static TranslationPID PIDStatus=TranslationPIDDisable;
 
 static  Servo_Dir Servo1_Dir=SERVO_STOP;
 static  Servo_Dir Servo2_Dir=SERVO_STOP;
@@ -25,7 +26,7 @@ ControlMode ReturnControlMode(void){
 uint8_t ReturnConfirmCount(void){return confirmcount;}
 
 VehicleHead ReturnFacingStatus(void){return Facingstatus;}
-WristHorizon ReturnWristStatus(void){return WristStatus;}
+TranslationPID ReturnPIDStatus(void){return PIDStatus;}
 
 uint8_t ReturnTargetArmLocation(void){return targetarmlocation;}
 
@@ -35,6 +36,7 @@ void Operate_Init(void){
     SERVO_Init();
     Motor_Init();
     Stepper_Init();
+    OLED_Init();
 }
 
 void ProceedControlMode(void){
@@ -182,7 +184,7 @@ struct __attribute__((packed)) reportdata{
     Presetlocation targetarmlocation;
     int64_t stepperlocation;
     VehicleHead Facingstatus;
-    WristHorizon WristStatus;
+    TranslationPID PIDStatus;
 
     Servo_Dir Servo1_Dir;
     Servo_Dir Servo2_Dir;
@@ -215,23 +217,35 @@ void OperateReport(void){
     data.Servo3_Dir=Servo3_Dir;
     data.Servo3_compare=Servo_ReturnCompare(SERVO3_PWM_CHANNEL);
     data.Facingstatus=Facingstatus;
-    data.WristStatus=WristStatus;
+    data.PIDStatus=PIDStatus;
     data.targetarmlocation=targetarmlocation;
     static reportdata oldreportdata=data;
     if(!memcmp(&oldreportdata, &data, sizeof(reportdata))){
         return;
     }
     xbox_controller_data_t xboxdata=ReturnControllerData();
+    OLED_Clear();
     if(ReturnControlMode()!=OperateMode){
         Serial.printf("confirm :%d, controlmode: %d \n",confirmcount,ReturnControlMode());
         Serial.printf("location: %lld\n",Stepper_Returnlocation());
+        OLED_ShowNum(1,1,confirmcount,1);
+        OLED_ShowNum(1,3,ReturnControlMode(),1);
+        OLED_ShowNum(2,1,Stepper_Returnlocation(),5);
+
     }else{
         Serial.printf("vhiclemovement: %d, speed: %d, axis(%d,%d) \n",movement,vehiclespeed,xboxdata.joy_l_h,xboxdata.joy_l_v);
         Serial.printf("servo1: (%d, %d, %d) ",Servo1_Dir,Servo1_speed,Servo_ReturnCompare(SERVO1_PWM_CHANNEL));
         Serial.printf("servo2:(%d, %d, %d) ",Servo2_Dir,Servo2_speed,Servo_ReturnCompare(SERVO2_PWM_CHANNEL));
         Serial.printf("servo3:(%d, %d) \n",Servo3_Dir,Servo_ReturnCompare(SERVO3_PWM_CHANNEL));
         Serial.printf("Stepper: dir %d, location %lld \n",Stepper1_Dir,Stepper_Returnlocation());
-        Serial.printf("head: %d, wrist: %d, preset: %d\n",Facingstatus,WristStatus,targetarmlocation);
+        Serial.printf("head: %d, PID: %d, preset: %d\n",Facingstatus,PIDStatus,targetarmlocation);
+        OLED_ShowNum(1,1,movement,2);
+        OLED_ShowNum(1,4,vehiclespeed,3);
+        OLED_ShowNum(1,8,Servo_ReturnCompare(SERVO1_PWM_CHANNEL),4);
+        OLED_ShowNum(2,1,Servo_ReturnCompare(SERVO2_PWM_CHANNEL),4);
+        OLED_ShowNum(2,6,Servo_ReturnCompare(SERVO3_PWM_CHANNEL),4);
+        OLED_ShowNum(3,1,Stepper_Returnlocation(),5);
+        OLED_ShowNum(3,7,Facingstatus,1);OLED_ShowNum(3,8,PIDStatus,1);OLED_ShowNum(3,9,targetarmlocation,1);
     }
     oldreportdata=data;
 }
@@ -242,7 +256,7 @@ void IRAM_ATTR servotimer_intr(void){//only for servo operation
 
 void IRAM_ATTR buttontimer_intr(void){//for status buttons
 /*
-x:confirm/facing; y:wristhorizontal ;RB:preset1/2;LB: delete preset
+x:confirm/facing; y:pid ;RB:preset1/2;LB: delete preset
 */
     static uint8_t Confirmprekey=UNPRESSED;
     static uint8_t Facingprekey=UNPRESSED;
