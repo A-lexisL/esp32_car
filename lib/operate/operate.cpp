@@ -1,5 +1,6 @@
 #include "operate.h"
 #include "OLED.h"
+#include "driver/ledc.h"
 static enum ControlMode mode=CalibrateMaxLocationMode;
 static uint8_t confirmcount=0;
 
@@ -56,12 +57,14 @@ void Calibrate(void){
 		return;
 	}
 	xbox_controller_data_t xboxdata=ReturnControllerData();
-	Stepper1_Dir=Stepper_Stop; 
+	
 	if(xboxdata.dpad==DPAD_U||xboxdata.dpad==DPAD_UL||xboxdata.dpad==DPAD_UR){
 		Stepper1_Dir=Stepper_Up;
 	}else if(xboxdata.dpad==DPAD_D||xboxdata.dpad==DPAD_DR||xboxdata.dpad==DPAD_DL){
 		Stepper1_Dir=Stepper_Down;
-	}
+	}else{
+        Stepper1_Dir=Stepper_Stop; 
+    }
 	Stepper_SetMode(Stepper_Continued_Control);
 	Stepper_ChangeDir(Stepper1_Dir);
 }
@@ -75,19 +78,21 @@ void InterpretController(void){
     XBOX_JoyconLocation xboxjoyconLdata=XBOX_InterpretJoycon(xboxdata,LEFTJOYCON);
     XBOX_JoyconLocation xboxjoyconRdata=XBOX_InterpretJoycon(xboxdata,RIGHTJOYCON);
     //stepper
-	Stepper1_Dir=Stepper_Stop; 
+	
 	if(xboxdata.dpad==DPAD_U||xboxdata.dpad==DPAD_UL||xboxdata.dpad==DPAD_UR){
 		Stepper1_Dir=Stepper_Up;
 	}else if(xboxdata.dpad==DPAD_D||xboxdata.dpad==DPAD_DR||xboxdata.dpad==DPAD_DL){
 		Stepper1_Dir=Stepper_Down;
-	}
+	}else{
+        Stepper1_Dir=Stepper_Stop; 
+    }
 	//servo
 	if(xboxjoyconRdata.r>=JOYCON_DEADZONE&&xboxjoyconRdata.angle>=-PI*3/4&&xboxjoyconRdata.angle<=-PI/4){
 		Servo1_Dir=SERVO_CLKWISE;
-        Servo1_speed=RadiusToServoSpeed(xboxjoyconRdata.r);
+        Servo1_speed=RadiusToServo1Speed(xboxjoyconRdata.r);
 	}else if(xboxjoyconRdata.r>=JOYCON_DEADZONE&&xboxjoyconRdata.angle>=PI/4&&xboxjoyconRdata.angle<=PI*3/4){
 		Servo1_Dir=SERVO_COUNTERCLKWISE;
-        Servo1_speed=RadiusToServoSpeed(xboxjoyconRdata.r);
+        Servo1_speed=RadiusToServo1Speed(xboxjoyconRdata.r);
 	}else{
 		Servo1_Dir=SERVO_STOP;
         Servo1_speed=0;
@@ -96,15 +101,19 @@ void InterpretController(void){
     if(xboxjoyconRdata.r>=JOYCON_DEADZONE){
         if(xboxjoyconRdata.angle>PI*3/4||xboxjoyconRdata.angle<-PI*3/4){
             Servo2_Dir=SERVO_CLKWISE;
-            Servo2_speed=RadiusToServoSpeed(xboxjoyconRdata.r);
+            Servo2_speed=RadiusToServo2Speed(xboxjoyconRdata.r);
         }else if(-PI/4<xboxjoyconRdata.angle&&xboxjoyconRdata.angle<PI/4){
             Servo2_Dir=SERVO_COUNTERCLKWISE;
-            Servo2_speed=RadiusToServoSpeed(xboxjoyconRdata.r);
+            Servo2_speed=RadiusToServo2Speed(xboxjoyconRdata.r);
         }else{
             Servo2_Dir=SERVO_STOP;
             Servo2_speed=0;
         }
+    }else{
+        Servo2_Dir=SERVO_STOP;
+        Servo2_speed=0;
     }
+
 	if(xboxdata.btnA==PRESSED||xboxdata.btnB==PRESSED){
 		if(xboxdata.btnA==PRESSED)
 			Servo3_Dir=SERVO_CLKWISE;
@@ -158,19 +167,19 @@ void Operate(void){
 		Vehicle_Move(Facingstatus,movement,vehiclespeed);
 	}else if(targetarmlocation==Preset_Basketlocation){
 		Servo_SetStatus(SERVO_Target_Angle);
-		Servo_SetTarget(SERVO1_MINSTEP,SERVO2_MINSTEP);
+		Servo_SetTarget(900,SERVO2_MINSTEP);
 		Stepper_SetMode(Stepper_Target_Location);
         Stepper_SetTargetLocation(STEPPER1_BASKETLOCATION);
 		Vehicle_Move(Facingstatus,movement,vehiclespeed);
 	}else if(targetarmlocation==Preset_Picklocation){
 		Servo_SetStatus(SERVO_Target_Angle);
-		Servo_SetTarget(1850,1460); //2020,2040,0
+		Servo_SetTarget(1850,1460); 
 		Stepper_SetMode(Stepper_Target_Location);
         Stepper_SetTargetLocation(STEPPER1_PICKLOCATION);
 		Vehicle_Move(Facingstatus,movement,vehiclespeed);
 	}else if(targetarmlocation==Preset_Preparelocation){
 		Servo_SetStatus(SERVO_Target_Angle);
-		Servo_SetTarget(SERVO1_MINSTEP,1260);//MG901_MAXSTEP,MG902_MINSTEP,0
+		Servo_SetTarget(SERVO1_MINSTEP,1260);
 		Stepper_SetMode(Stepper_Continued_Control);
 		Stepper_ChangeDir(Stepper1_Dir);//doesn't need to decide the location of stepper1
 		Vehicle_Move(Facingstatus,movement,vehiclespeed);
@@ -230,7 +239,8 @@ void OperateReport(void){
         Serial.printf("location: %lld\n",Stepper_Returnlocation());
         OLED_ShowNum(1,1,confirmcount,1);
         OLED_ShowNum(1,3,ReturnControlMode(),1);
-        OLED_ShowNum(2,1,Stepper_Returnlocation(),5);
+        OLED_ShowSignedNum(2,1,Stepper_Returnlocation(),5);
+        OLED_ShowNum(3,1,Stepper1_Dir,1);
 
     }else{
         Serial.printf("vhiclemovement: %d, speed: %d, axis(%d,%d) \n",movement,vehiclespeed,xboxdata.joy_l_h,xboxdata.joy_l_v);
@@ -244,8 +254,8 @@ void OperateReport(void){
         OLED_ShowNum(1,8,Servo_ReturnCompare(SERVO1_PWM_CHANNEL),4);
         OLED_ShowNum(2,1,Servo_ReturnCompare(SERVO2_PWM_CHANNEL),4);
         OLED_ShowNum(2,6,Servo_ReturnCompare(SERVO3_PWM_CHANNEL),4);
-        OLED_ShowNum(3,1,Stepper_Returnlocation(),5);
-        OLED_ShowNum(3,7,Facingstatus,1);OLED_ShowNum(3,8,PIDStatus,1);OLED_ShowNum(3,9,targetarmlocation,1);
+        OLED_ShowSignedNum(3,1,Stepper_Returnlocation(),5);
+        OLED_ShowNum(3,8,Facingstatus,1);OLED_ShowNum(3,9,PIDStatus,1);OLED_ShowNum(3,10,targetarmlocation,1);
     }
     oldreportdata=data;
 }

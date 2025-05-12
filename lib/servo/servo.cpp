@@ -39,7 +39,9 @@ void Servo_Operate(Servo_Dir servo1dir,Servo_Dir servo2dir,Servo_Dir servo3dir,
 				Servo1_compare=SERVO1_MINSTEP;
 		}else if(servo1dir==SERVO_STOP){
 		}
-		ledcWrite(SERVO1_PWM_CHANNEL,Servo1_compare);
+		ledc_set_duty(LEDC_LOW_SPEED_MODE,SERVO1_PWM_CHANNEL,Servo1_compare);
+		ledc_update_duty(LEDC_LOW_SPEED_MODE,SERVO1_PWM_CHANNEL);
+		
 
 		if(servo2dir==SERVO_CLKWISE){
 			Servo2_compare+=servo2speed;
@@ -51,12 +53,15 @@ void Servo_Operate(Servo_Dir servo1dir,Servo_Dir servo2dir,Servo_Dir servo3dir,
             Servo2_compare=SERVO2_MINSTEP;
 		}else if(servo2dir==SERVO_STOP){
 		}
-		ledcWrite(SERVO2_PWM_CHANNEL,Servo2_compare);
+		ledc_set_duty(LEDC_LOW_SPEED_MODE,SERVO2_PWM_CHANNEL,Servo2_compare);
+		ledc_update_duty(LEDC_LOW_SPEED_MODE,SERVO2_PWM_CHANNEL);
 	}else if(status==SERVO_Target_Angle){//servo1/2 is determined by Servo_SetTarget
 		if(Servo1_compare>=SERVO1_MINSTEP&&Servo1_compare<=SERVO1_MAXSTEP)//for security
-			ledcWrite(SERVO1_PWM_CHANNEL,Servo1_compare);
+			ledc_set_duty(LEDC_LOW_SPEED_MODE,SERVO1_PWM_CHANNEL,Servo1_compare);
+			ledc_update_duty(LEDC_LOW_SPEED_MODE,SERVO1_PWM_CHANNEL);
 		if(Servo2_compare>=SERVO2_MINSTEP&&Servo2_compare<=SERVO2_MAXSTEP)
-			ledcWrite(SERVO2_PWM_CHANNEL,Servo2_compare);
+			ledc_set_duty(LEDC_LOW_SPEED_MODE,SERVO2_PWM_CHANNEL,Servo2_compare);
+			ledc_update_duty(LEDC_LOW_SPEED_MODE,SERVO2_PWM_CHANNEL);
 	}
 	
 	if(servo3dir==SERVO_CLKWISE){//servo3 is always controlled by the controller
@@ -70,7 +75,8 @@ void Servo_Operate(Servo_Dir servo1dir,Servo_Dir servo2dir,Servo_Dir servo3dir,
 		Servo3_compare=SERVO3_MINSTEP;
 	}else if(servo3dir==SERVO_STOP){
 	}
-	ledcWrite(SERVO3_PWM_CHANNEL,Servo3_compare);
+	ledc_set_duty(LEDC_LOW_SPEED_MODE,SERVO3_PWM_CHANNEL,Servo3_compare);
+	ledc_update_duty(LEDC_LOW_SPEED_MODE,SERVO3_PWM_CHANNEL);
 	
 }
 

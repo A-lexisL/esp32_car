@@ -22,13 +22,16 @@ void Motor1_Operate(int32_t speed){
 	if(speed>0){
         digitalWrite(Motor1_Dir_Pin1,HIGH);
         digitalWrite(Motor1_Dir_Pin2,LOW);
-        ledcWrite(MOTOR1_PWM_CHANNEL,speed);
+		ledc_set_duty(LEDC_LOW_SPEED_MODE,MOTOR1_PWM_CHANNEL,speed);
+		ledc_update_duty(LEDC_LOW_SPEED_MODE,MOTOR1_PWM_CHANNEL);
 	}else if (speed<0){
 		digitalWrite(Motor1_Dir_Pin1,LOW);
         digitalWrite(Motor1_Dir_Pin2,HIGH);
-        ledcWrite(MOTOR1_PWM_CHANNEL,-speed);
+        ledc_set_duty(LEDC_LOW_SPEED_MODE,MOTOR1_PWM_CHANNEL,-speed);
+		ledc_update_duty(LEDC_LOW_SPEED_MODE,MOTOR1_PWM_CHANNEL);
 	}else{
-		ledcWrite(MOTOR1_PWM_CHANNEL,0);
+		ledc_set_duty(LEDC_LOW_SPEED_MODE,MOTOR1_PWM_CHANNEL,0);
+		ledc_update_duty(LEDC_LOW_SPEED_MODE,MOTOR1_PWM_CHANNEL);
 	}
 }
 
@@ -41,13 +44,16 @@ void Motor2_Operate(int32_t speed){
 	if(speed>0){
 		digitalWrite(Motor2_Dir_Pin1,HIGH);
         digitalWrite(Motor2_Dir_Pin2,LOW);
-        ledcWrite(MOTOR2_PWM_CHANNEL,speed);
+        ledc_set_duty(LEDC_LOW_SPEED_MODE,MOTOR2_PWM_CHANNEL,speed);
+		ledc_update_duty(LEDC_LOW_SPEED_MODE,MOTOR2_PWM_CHANNEL);
 	}else if (speed<0){
 		digitalWrite(Motor2_Dir_Pin1,LOW);
         digitalWrite(Motor2_Dir_Pin2,HIGH);
-        ledcWrite(MOTOR2_PWM_CHANNEL,-speed);
+        ledc_set_duty(LEDC_LOW_SPEED_MODE,MOTOR2_PWM_CHANNEL,-speed);
+		ledc_update_duty(LEDC_LOW_SPEED_MODE,MOTOR2_PWM_CHANNEL);
 	}else{
-		ledcWrite(MOTOR2_PWM_CHANNEL,0);
+		ledc_set_duty(LEDC_LOW_SPEED_MODE,MOTOR2_PWM_CHANNEL,0);
+		ledc_update_duty(LEDC_LOW_SPEED_MODE,MOTOR2_PWM_CHANNEL);
 	}
 }
 
@@ -59,13 +65,16 @@ void Motor3_Operate(int32_t speed){
 	if(speed>0){
 		digitalWrite(Motor3_Dir_Pin1,HIGH);
         digitalWrite(Motor3_Dir_Pin2,LOW);
-        ledcWrite(MOTOR3_PWM_CHANNEL,speed);
+        ledc_set_duty(LEDC_LOW_SPEED_MODE,MOTOR3_PWM_CHANNEL,speed);
+		ledc_update_duty(LEDC_LOW_SPEED_MODE,MOTOR3_PWM_CHANNEL);
 	}else if (speed<0){
 		digitalWrite(Motor3_Dir_Pin1,LOW);
         digitalWrite(Motor3_Dir_Pin2,HIGH);
-        ledcWrite(MOTOR3_PWM_CHANNEL,-speed);
+        ledc_set_duty(LEDC_LOW_SPEED_MODE,MOTOR3_PWM_CHANNEL,-speed);
+		ledc_update_duty(LEDC_LOW_SPEED_MODE,MOTOR3_PWM_CHANNEL);
 	}else{
-		ledcWrite(MOTOR3_PWM_CHANNEL,0);
+		ledc_set_duty(LEDC_LOW_SPEED_MODE,MOTOR3_PWM_CHANNEL,0);
+		ledc_update_duty(LEDC_LOW_SPEED_MODE,MOTOR3_PWM_CHANNEL);
 	}
 }
 
@@ -77,13 +86,16 @@ void Motor4_Operate(int32_t speed){
 	if(speed>0){
 		digitalWrite(Motor4_Dir_Pin1,HIGH);
         digitalWrite(Motor4_Dir_Pin2,LOW);
-        ledcWrite(MOTOR4_PWM_CHANNEL,speed);
+        ledc_set_duty(LEDC_LOW_SPEED_MODE,MOTOR4_PWM_CHANNEL,speed);
+		ledc_update_duty(LEDC_LOW_SPEED_MODE,MOTOR4_PWM_CHANNEL);
 	}else if (speed<0){
 		digitalWrite(Motor4_Dir_Pin1,LOW);
         digitalWrite(Motor4_Dir_Pin2,HIGH);
-        ledcWrite(MOTOR4_PWM_CHANNEL,-speed);
+        ledc_set_duty(LEDC_LOW_SPEED_MODE,MOTOR4_PWM_CHANNEL,-speed);
+		ledc_update_duty(LEDC_LOW_SPEED_MODE,MOTOR4_PWM_CHANNEL);
 	}else{
-		ledcWrite(MOTOR4_PWM_CHANNEL,0);
+		ledc_set_duty(LEDC_LOW_SPEED_MODE,MOTOR4_PWM_CHANNEL,0);
+		ledc_update_duty(LEDC_LOW_SPEED_MODE,MOTOR4_PWM_CHANNEL);
 	}
 }
 

@@ -53,22 +53,27 @@ void IRAM_ATTR ledc_isr_handler(void* arg){
             dir=Stepper_Stop;
     }
     if(dir==Stepper_Stop){
-    ledcWrite(STEPPER_PWM_CHANNEL,0);
+        ledc_set_duty(LEDC_LOW_SPEED_MODE,STEPPER_PWM_CHANNEL,0);
+        ledc_update_duty(LEDC_LOW_SPEED_MODE,STEPPER_PWM_CHANNEL);
     }else if(dir==Stepper_Up){
         digitalWrite(STEPPER_DIR_PIN,LOW);
         if(location<MaxLocation){
-            ledcWrite(STEPPER_PWM_CHANNEL,STEPPERARR/2);
+            ledc_set_duty(LEDC_LOW_SPEED_MODE,STEPPER_PWM_CHANNEL,STEPPERARR/2);
+            ledc_update_duty(LEDC_LOW_SPEED_MODE,STEPPER_PWM_CHANNEL);
             location+=1;
         }else{
-            ledcWrite(STEPPER_PWM_CHANNEL,0);
+            ledc_set_duty(LEDC_LOW_SPEED_MODE,STEPPER_PWM_CHANNEL,0);
+            ledc_update_duty(LEDC_LOW_SPEED_MODE,STEPPER_PWM_CHANNEL);
         }
     }else if(dir==Stepper_Down){
         digitalWrite(STEPPER_DIR_PIN,HIGH);
         if(location>MinLocation){
-            ledcWrite(STEPPER_PWM_CHANNEL,STEPPERARR/2);
+            ledc_set_duty(LEDC_LOW_SPEED_MODE,STEPPER_PWM_CHANNEL,STEPPERARR/2);
+            ledc_update_duty(LEDC_LOW_SPEED_MODE,STEPPER_PWM_CHANNEL);
             location-=1;
         }else{
-            ledcWrite(STEPPER_PWM_CHANNEL,0);
+            ledc_set_duty(LEDC_LOW_SPEED_MODE,STEPPER_PWM_CHANNEL,0);
+            ledc_update_duty(LEDC_LOW_SPEED_MODE,STEPPER_PWM_CHANNEL);
         }
     }
 }
